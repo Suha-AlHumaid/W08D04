@@ -1,5 +1,5 @@
 # W08D04
-# social media Apis With Auths
+# Social Media Apis With Auths
 It's social media backend project with authentication and authorization. It's includes signin and register system useing bcrybt and jwt. Give only permission for admin to delete or see users information and create custom role.
 
 ّIndex:
