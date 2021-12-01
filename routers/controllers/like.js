@@ -1,6 +1,5 @@
 const likeModel = require("../../db/models/like");
 
-
 const likeToggele = (req, res) => {
   const { id } = req.params;
   const { isLike } = req.body;

@@ -286,5 +286,5 @@ module.exports = {
   deleteComment,
   updateComment,
   deleteAnyCommentOrPost,
-  deleteCommentOfUserPost
+  deleteCommentOfUserPost,
 };

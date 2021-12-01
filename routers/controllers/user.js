@@ -32,7 +32,7 @@ const register = async (req, res) => {
 
 const login = (req, res) => {
   const { email, userName, password } = req.body;
-  
+
   if (email) {
     const savedEmail = email.toLowerCase();
     userModel
@@ -177,6 +177,5 @@ const deleteUserSoft = (req, res) => {
       res.status(400).json(err);
     });
 };
-
 
 module.exports = { register, login, deleteUser, deleteUserSoft, getAllUser };

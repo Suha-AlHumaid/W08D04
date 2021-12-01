@@ -110,7 +110,8 @@ const deletePost = (req, res) => {
                         commentModel
                           .updateMany(
                             { post: result._id, isDele: false },
-                            { isDele: true },{new:true}
+                            { isDele: true },
+                            { new: true }
                           )
                           .then((result) => {
                             res.status(201).json("post deleted");
@@ -118,14 +119,13 @@ const deletePost = (req, res) => {
                           .catch((error) => {
                             res.status(400).json(error);
                           });
-                 
                       }
                       res.status(201).json("post deleted");
                     })
                     .catch((err) => {
                       res.status(400).json(err);
                     });
-               
+
                   // likeModel
                   //   .updateMany(
                   //     { post: result._id, isDele: false },
@@ -144,7 +144,7 @@ const deletePost = (req, res) => {
               .catch((err) => {
                 res.status(400).json(err);
               });
-              res.status(201).json("post deleted");
+            res.status(201).json("post deleted");
           }
         }
       })
@@ -155,7 +155,6 @@ const deletePost = (req, res) => {
     res.status(400).json(error);
   }
 };
-
 
 ////update post
 const updatePost = (req, res) => {
