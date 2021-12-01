@@ -36,36 +36,36 @@ const getAllComments = (req, res) => {
 //get comment by id
 const getComment = (req, res) => {
   const { id } = req.params; //comment id
-let comment =null
+  let comment = null;
   commentModel
     .findById(id)
     .then((result) => {
       if (result) {
-      if (result.isDele === false) {
-        comment= result
-        // console.log(result.post);
-        postModel .findById(result.post)
-        .then((result) => {
-          if (result) {
-            if (result.isDele == false) {
-          res.status(200).json(comment)
-        }else {
-          res.status(404).json("not found post");
+        if (result.isDele === false) {
+          comment = result;
+          // console.log(result.post);
+          postModel
+            .findById(result.post)
+            .then((result) => {
+              if (result) {
+                if (result.isDele == false) {
+                  res.status(200).json(comment);
+                } else {
+                  res.status(404).json("not found post");
+                }
+              } else {
+                res.status(404).json("not found post");
+              }
+            })
+            .catch((err) => {
+              res.status(400).json(err);
+            });
+        } else {
+          res.status(404).json("not found comment");
         }
-      }else {
-        res.status(404).json("not found post");
-      }
-        })
-        .catch((err) => {
-          res.status(400).json(err);
-        });
-       
       } else {
         res.status(404).json("not found comment");
       }
-    }else {
-      res.status(404).json("not found comment");
-    }
     })
     .catch((err) => {
       res.status(400).json(err);
@@ -173,10 +173,118 @@ const updateComment = (req, res) => {
     res.status(400).json(error);
   }
 };
+
+//delete any comments or post
+const deleteAnyCommentOrPost = (req, res) => {
+  const { post_id, _id } = req.body; //user of comment and post id
+
+  //delete post
+  if (post_id) {
+    postModel
+      .findByIdAndDelete(post_id)
+      .then((result) => {
+        if (result) {
+          if (result.isDele == true) {
+            res.status(404).json("not found post");
+          } else {
+            //post found
+            commentModel
+              .deleteMany({ post: result._id })
+              .then((result) => {
+                res.status(201).json(result);
+              })
+              .catch((error) => {
+                res.status(400).json(error);
+              });
+          }
+        } else {
+          res.status(404).json("not found post");
+        }
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  }
+
+  //delete comment
+  if (_id) {
+    commentModel.findByIdAndDelete(_id).then((result) => {
+      if (result) {
+        if (result.isDele == true) {
+          res.status(404).json("not found comment");
+        } else {
+          //comment found
+          res.status(201).json(result);
+        }
+      } else {
+        res.status(404).json("not found comment");
+      }
+    });
+  }
+};
+
+const deleteCommentOfUserPost = () => {
+  const { _id } = req.params; // post id
+  const { comment_id } = req.body; //comment id
+  const id = req.suha._id; //user id
+
+  userModel
+    .findById(id)
+    .then((result) => {
+      if (result) {
+        if (result.isDele == true) {
+          res.status(404).json("not found user");
+        } else {
+          //user found
+          postModel
+            .findById(_id)
+            .then((result) => {
+              if (result) {
+                if (result.isDele == true) {
+                  res.status(404).json("not found post");
+                } else {
+                  //post found
+                  commentModel
+                    .findByIdAndDelete(comment_id)
+                    .then((result) => {
+                      if (result) {
+                        if (result.isDele == true) {
+                          res.status(404).json("not found comment");
+                        } else {
+                          //comment found
+                          res.status(201).json(result);
+                        }
+                      } else {
+                        res.status(404).json("not found comment");
+                      }
+                    })
+                    .catch((err) => {
+                      res.status(400).json(err);
+                    });
+                }
+              } else {
+                res.status(404).json("not found post");
+              }
+            })
+            .catch((err) => {
+              res.status(400).json(err);
+            });
+        }
+      } else {
+        res.status(404).json("not found user");
+      }
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+};
+
 module.exports = {
   getAllComments,
   getComment,
   addComment,
   deleteComment,
   updateComment,
+  deleteAnyCommentOrPost,
+  deleteCommentOfUserPost
 };

@@ -6,8 +6,7 @@ const authentication = require("../auth/authentication");
 // authentication middelle wear
 const authorization = require("../auth/authorization");
 
-const {likeToggele, addLike} = require("../controllers/like");
-likeRouter.post("/like/:_id", authentication, addLike);
-likeRouter.put("/like/:_id", authentication, likeToggele);
+const {likeToggele} = require("../controllers/like");
 
+likeRouter.put("/like/:id", authentication,likeToggele);
 module.exports=likeRouter;
