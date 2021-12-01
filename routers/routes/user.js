@@ -7,14 +7,19 @@ const authentication = require("../auth/authentication");
 const authorization = require("../auth/authorization");
 
 //destructuring
-const { register, login, deleteUser,getAllUser } = require("../controllers/user");
+const { register, login, deleteUser,deleteUserSoft ,getAllUser } = require("../controllers/user");
 
 //controllers
 userRouter.post("/register", register);
+
 userRouter.post("/login", login);
 
 //only admin can delete
 userRouter.delete("/user/:id",authentication, authorization, deleteUser);
+
+//only admin can delete soft
+userRouter.put("/user/:id",authentication, authorization,deleteUserSoft);
+
 //only admin can get all user
 userRouter.get("/all",authentication, authorization, getAllUser);
 

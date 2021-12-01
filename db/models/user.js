@@ -6,15 +6,12 @@ const userSchema = new mongoose.Schema(
     userName: { type: String, required: true, unique: true },
     avatar: { type: String },
     password: { type: String, required: true },
+    isDele: { type: Boolean, default: false, required: true },
     role: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Role",
       required: true,
     },
-    //  posts: [{
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'Task'
-    // }]
   },
   { timestamps: true }
 );

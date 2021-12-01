@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const likeSchema = new mongoose.Schema(
   {
-    // isDele: { type: Boolean, default: false, required: true },
+    isDele: { type: Boolean, default: false, required: true },
     isLike: { type: Boolean, default: false, required: true },
     puplisher: {
       type: mongoose.Schema.Types.ObjectId,
