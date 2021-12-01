@@ -223,11 +223,11 @@ const deleteAnyCommentOrPost = (req, res) => {
   }
 };
 
-const deleteCommentOfUserPost = () => {
+const deleteCommentOfUserPost = (req, res) => {
   const { _id } = req.params; // post id
   const { comment_id } = req.body; //comment id
   const id = req.suha._id; //user id
-
+console.log(id);
   userModel
     .findById(id)
     .then((result) => {
