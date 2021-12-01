@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const commentSchema = new mongoose.Schema(
   {
-    discriptionn: { type: String, required: true },
+    discription: { type: String, required: true },
     Date: { type: Date, default: Date.now },
     isDele: { type: Boolean, default: false, required: true },
     isLike: { type: Boolean, default: false, required: true },

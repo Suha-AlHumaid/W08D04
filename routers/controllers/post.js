@@ -92,19 +92,61 @@ const deletePost = (req, res) => {
     userModel
       .findById({ _id: id })
       .then((result) => {
-        postModel
-          .findByIdAndUpdate({ _id }, { isDele: true }, { new: true })
-          .then((result) => {
-            console.log(result);
-            if (result.isDele == false) {
-              res.status(200).json(result);
-            } else {
-              res.status(404).json("Post already deleted");
-            }
-          })
-          .catch((err) => {
-            res.status(400).json(err);
-          });
+        if (result) {
+          if (result.isDele) {
+            res.status(404).json("user dose not exist");
+          } else {
+            postModel
+              .findByIdAndUpdate({ _id }, { isDele: true })
+              .then((result) => {
+                if (result.isDele == false) {
+                  commentModel
+                    .updateMany(
+                      { post: result._id, isDele: false },
+                      { isDele: true }
+                    )
+                    .then((result) => {
+                      if (result.isDele == false) {
+                        commentModel
+                          .updateMany(
+                            { post: result._id, isDele: false },
+                            { isDele: true },{new:true}
+                          )
+                          .then((result) => {
+                            res.status(201).json("post deleted");
+                          })
+                          .catch((error) => {
+                            res.status(400).json(error);
+                          });
+                 
+                      }
+                      res.status(201).json("post deleted");
+                    })
+                    .catch((err) => {
+                      res.status(400).json(err);
+                    });
+               
+                  // likeModel
+                  //   .updateMany(
+                  //     { post: result._id, isDele: false },
+                  //     { isDele: true }
+                  //   )
+                  //   .then(() => {
+                  //     res.status(201).json(result);
+                  //   })
+                  //   .catch((err) => {
+                  //     res.status(400).json(err);
+                  //   });
+                } else {
+                  res.status(404).json("Post already deleted");
+                }
+              })
+              .catch((err) => {
+                res.status(400).json(err);
+              });
+              res.status(201).json("post deleted");
+          }
+        }
       })
       .catch((err) => {
         res.status(400).json(err);
@@ -113,6 +155,7 @@ const deletePost = (req, res) => {
     res.status(400).json(error);
   }
 };
+
 
 ////update post
 const updatePost = (req, res) => {

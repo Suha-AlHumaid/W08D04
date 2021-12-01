@@ -32,6 +32,7 @@ const register = async (req, res) => {
 
 const login = (req, res) => {
   const { email, userName, password } = req.body;
+  
   if (email) {
     const savedEmail = email.toLowerCase();
     userModel
@@ -131,6 +132,20 @@ const deleteUser = (req, res) => {
       res.status(400).json(err);
     });
 };
+//get all user
+const getAllUser = (req, res) => {
+  userModel
+    .find({})
+    .then((result) => {
+      if (result.length !== 0) {
+        res.status(200).json(result);
+      }
+      res.status(404).json("There is no user to show");
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+};
 
 //delete user and his data soft delete
 const deleteUserSoft = (req, res) => {
@@ -162,19 +177,6 @@ const deleteUserSoft = (req, res) => {
       res.status(400).json(err);
     });
 };
-//get all user
-const getAllUser = (req, res) => {
-  userModel
-    .find({})
-    .then((result) => {
-      if (result.length !== 0) {
-        res.status(200).json(result);
-      }
-      res.status(404).json("There is no user to show");
-    })
-    .catch((err) => {
-      res.status(400).json(err);
-    });
-};
+
 
 module.exports = { register, login, deleteUser, deleteUserSoft, getAllUser };

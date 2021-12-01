@@ -21,6 +21,11 @@ app.use(userRouter);
 const postRouter = require("./routers/routes/post");
 app.use(postRouter);
 
+//Comment Router
+
+const commentRouter = require("./routers/routes/comment");
+app.use(commentRouter);
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
