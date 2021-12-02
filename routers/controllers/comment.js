@@ -39,6 +39,7 @@ const getComment = (req, res) => {
   let comment = null;
   commentModel
     .findById(id)
+    .populate("post")
     .then((result) => {
       if (result) {
         if (result.isDele === false) {
@@ -227,53 +228,33 @@ const deleteCommentOfUserPost = (req, res) => {
   const { _id } = req.params; // post id
   const { comment_id } = req.body; //comment id
   const id = req.suha._id; //user id
-console.log(id);
+
   userModel
     .findById(id)
     .then((result) => {
-      if (result) {
-        if (result.isDele == true) {
-          res.status(404).json("not found user");
-        } else {
+      console.log(result);
           //user found
           postModel
-            .findById(_id)
+          .findById({_id:_id})
             .then((result) => {
-              if (result) {
-                if (result.isDele == true) {
-                  res.status(404).json("not found post");
-                } else {
-                  //post found
+              console.log(result);
                   commentModel
                     .findByIdAndDelete(comment_id)
                     .then((result) => {
-                      if (result) {
-                        if (result.isDele == true) {
-                          res.status(404).json("not found comment");
-                        } else {
+                      console.log(result);
+              
                           //comment found
+                        
                           res.status(201).json(result);
-                        }
-                      } else {
-                        res.status(404).json("not found comment");
-                      }
-                    })
+                        })
+            
+              
                     .catch((err) => {
                       res.status(400).json(err);
                     });
-                }
-              } else {
-                res.status(404).json("not found post");
-              }
-            })
-            .catch((err) => {
-              res.status(400).json(err);
-            });
-        }
-      } else {
-        res.status(404).json("not found user");
-      }
-    })
+                  }
+
+   )})
     .catch((err) => {
       res.status(400).json(err);
     });

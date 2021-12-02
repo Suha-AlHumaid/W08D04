@@ -36,7 +36,7 @@ const getPost = (req, res) => {
         } else {
           postModel
             .findById(id)
-
+            .populate("puplisher")
             .then((result) => {
               if (result.isDele === false) {
                 res.status(200).json(result);
