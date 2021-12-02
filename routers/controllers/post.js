@@ -1,6 +1,7 @@
 const postModel = require("../../db/models/post");
 const userModel = require("../../db/models/user");
-
+const commentModel = require("../../db/models/comment");
+const likeModel = require("../../db/models/like");
 //get all posts (not deleted)
 const getAllPosts = (req, res) => {
   const _id = req.suha._id;
@@ -73,7 +74,6 @@ const addPost = (req, res) => {
           });
 
           newPost.save();
-          console.log(newPost);
           res.status(201).json(newPost);
         }
       }
@@ -85,7 +85,7 @@ const addPost = (req, res) => {
 };
 
 //soft delete post
-const deletePost = (req, res) => {
+const deletePostAdmin = (req, res) => {
   try {
     const id = req.suha._id;
     const { _id } = req.params;
@@ -97,55 +97,49 @@ const deletePost = (req, res) => {
             res.status(404).json("user dose not exist");
           } else {
             postModel
-              .findByIdAndUpdate({ _id }, { isDele: true })
+              .findOneAndUpdate({ _id: _id, isDele: false }, { isDele: true })
               .then((result) => {
-                if (result.isDele == false) {
-                  commentModel
-                    .updateMany(
-                      { post: result._id, isDele: false },
-                      { isDele: true }
-                    )
-                    .then((result) => {
-                      if (result.isDele == false) {
-                        commentModel
+                commentModel
+                  .updateMany(
+                    { post: result._id, isDele: false },
+                    { isDele: true },
+                    { new: true }
+                  )
+                  .then((result) => {
+                    commentModel
+                      .updateMany(
+                        { post: result._id, isDele: false },
+                        { isDele: true },
+                        { new: true }
+                      )
+                      .then((result) => {
+                        likeModel
                           .updateMany(
                             { post: result._id, isDele: false },
-                            { isDele: true },
-                            { new: true }
+                            { isDele: true }
                           )
-                          .then((result) => {
+                          .then(() => {
                             res.status(201).json("post deleted");
+                            // res.status(201).json(result);
                           })
-                          .catch((error) => {
-                            res.status(400).json(error);
+                          .catch((err) => {
+                            res.status(400).json(err);
                           });
-                      }
-                      res.status(201).json("post deleted");
-                    })
-                    .catch((err) => {
-                      res.status(400).json(err);
-                    });
-
-                  // likeModel
-                  //   .updateMany(
-                  //     { post: result._id, isDele: false },
-                  //     { isDele: true }
-                  //   )
-                  //   .then(() => {
-                  //     res.status(201).json(result);
-                  //   })
-                  //   .catch((err) => {
-                  //     res.status(400).json(err);
-                  //   });
-                } else {
-                  res.status(404).json("Post already deleted");
-                }
+                      })
+                      .catch((error) => {
+                        res.status(400).json(error);
+                      });
+                  })
+                  .catch((err) => {
+                    res.status(400).json(err);
+                  });
               })
               .catch((err) => {
                 res.status(400).json(err);
               });
-            res.status(201).json("post deleted");
           }
+        } else {
+          res.status(201).json("not found post");
         }
       })
       .catch((err) => {
@@ -156,6 +150,78 @@ const deletePost = (req, res) => {
   }
 };
 
+const deletePost = (req, res) => {
+  try {
+    const id = req.suha._id;
+    const { _id } = req.params;
+    userModel
+      .findById(id)
+      .then((result) => {
+        if (result) {
+          if (result.isDele == true) {
+            res.status(404).json("user dose not exist");
+          } else {
+            postModel
+              .findOneAndUpdate(
+                { _id: _id, isDele: false, puplisher: id },
+                { isDele: true }
+              )
+              .then((result) => {
+                if (result) {
+                  console.log(result);
+                  commentModel
+                    .updateMany(
+                      { post: result._id, isDele: false },
+                      { isDele: true },
+                      { new: true }
+                    )
+                    .then((result) => {
+                      commentModel
+                        .updateMany(
+                          { post: result._id, isDele: false },
+                          { isDele: true },
+                          { new: true }
+                        )
+                        .then((result) => {
+                          likeModel
+                            .updateMany(
+                              { post: result._id, isDele: false },
+                              { isDele: true }
+                            )
+                            .then(() => {
+                              res.status(201).json("post deleted");
+                              // res.status(201).json(result);
+                            })
+                            .catch((err) => {
+                              res.status(400).json(err);
+                            });
+                        })
+                        .catch((error) => {
+                          res.status(400).json(error);
+                        });
+                    })
+                    .catch((err) => {
+                      res.status(400).json(err);
+                    });
+                } else {
+                  res.status(404).json("not found post");
+                }
+              })
+              .catch((err) => {
+                res.status(400).json(err);
+              });
+          }
+        } else {
+          res.status(201).json("not found post");
+        }
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
 ////update post
 const updatePost = (req, res) => {
   try {
@@ -171,7 +237,6 @@ const updatePost = (req, res) => {
           postModel
             .findByIdAndUpdate({ _id }, { avatar: avatar }, { new: true })
             .then((result) => {
-              console.log(result);
               if (result.isDele == false) {
                 res.status(200).json(result);
               } else {
@@ -199,7 +264,6 @@ const updatePost = (req, res) => {
               { new: true }
             )
             .then((result) => {
-              console.log(result);
               if (result.isDele == false) {
                 res.status(200).json(result);
               } else {
@@ -223,7 +287,6 @@ const updatePost = (req, res) => {
           postModel
             .findByIdAndUpdate({ _id }, { title: title }, { new: true })
             .then((result) => {
-              console.log(result);
               if (result.isDele == false) {
                 res.status(200).json(result);
               } else {
@@ -242,11 +305,12 @@ const updatePost = (req, res) => {
     res.status(400).json(error);
   }
 };
-module.exports = { getAllPosts, getPost, addPost, deletePost, updatePost };
-// avatar,
-// discription,
-// title,
-// Date,
-// isDele,
-// puplisher,
-// like
+
+module.exports = {
+  getAllPosts,
+  getPost,
+  addPost,
+  deletePost,
+  updatePost,
+  deletePostAdmin,
+};

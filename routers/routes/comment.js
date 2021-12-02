@@ -28,7 +28,8 @@ commentRouter.put(
   authentication,
   deleteCommentOfUserPost
 );
-commentRouter.delete(
+// "/deleteCommentOfUserPost/:_id",
+commentRouter.put(
   "/anyCommentOrpost",
   authentication,
   authorization,
