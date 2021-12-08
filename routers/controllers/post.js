@@ -36,13 +36,17 @@ const getPost = (req, res) => {
           res.status(404).json("user dose not exist");
         } else {
           postModel
-            .findById(id)
+            .findOne({_id: id, puplisher: userId})
             .populate("puplisher")
             .then((result) => {
+              if (result){
               if (result.isDele === false) {
                 res.status(200).json(result);
               }
               res.status(404).json("There is no posts to show");
+            }else {
+              res.status(404).json("There is no post for you");
+            }
             })
             .catch((err) => {
               res.status(400).json(err);
@@ -158,9 +162,7 @@ const deletePost = (req, res) => {
       .findById(id)
       .then((result) => {
         if (result) {
-          if (result.isDele == true) {
-            res.status(404).json("user dose not exist");
-          } else {
+   
             postModel
               .findOneAndUpdate(
                 { _id: _id, isDele: false, puplisher: id },
@@ -211,9 +213,7 @@ const deletePost = (req, res) => {
                 res.status(400).json(err);
               });
           }
-        } else {
-          res.status(201).json("not found post");
-        }
+
       })
       .catch((err) => {
         res.status(400).json(err);
@@ -234,18 +234,36 @@ const updatePost = (req, res) => {
       userModel
         .findById({ _id: id })
         .then((result) => {
-          postModel
-            .findByIdAndUpdate({ _id }, { avatar: avatar }, { new: true })
-            .then((result) => {
-              if (result.isDele == false) {
-                res.status(200).json(result);
-              } else {
-                res.status(404).json("Post already deleted");
-              }
-            })
-            .catch((err) => {
-              res.status(400).json(err);
-            });
+
+          
+          if(result){
+            postModel
+              .findOneAndUpdate(
+             
+                {post: _id , puplisher: id },
+                { avatar: avatar},
+                { new: true }
+              )
+              .then((result) => {
+                if (result ){
+                if (result.isDele == false) {
+                  res.status(200).json(result);
+                } else {
+                  res.status(404).json("Post already deleted");
+                }}
+                else {
+                  res.status(404).json("not found post ");
+                }
+              })
+              .catch((err) => {
+                res.status(400).json(err);
+              });
+            }else {
+              res.status(404).json("not found user");
+            }
+  
+
+
         })
         .catch((err) => {
           res.status(400).json(err);
@@ -254,25 +272,39 @@ const updatePost = (req, res) => {
 
     //discription
     if (discription) {
+ 
       userModel
-        .findById({ _id: id })
+        .findOne({_id:id})
         .then((result) => {
+        
+          if(result){
           postModel
-            .findByIdAndUpdate(
-              { _id },
+            .findOneAndUpdate(
+           
+              {post: _id , puplisher: id },
               { discription: discription },
               { new: true }
             )
             .then((result) => {
+              if (result ){
               if (result.isDele == false) {
                 res.status(200).json(result);
               } else {
                 res.status(404).json("Post already deleted");
+              }}
+              else {
+                res.status(404).json("not found post ");
               }
             })
             .catch((err) => {
               res.status(400).json(err);
             });
+          }else {
+            res.status(404).json("not found user");
+          }
+
+
+
         })
         .catch((err) => {
           res.status(400).json(err);
@@ -284,18 +316,34 @@ const updatePost = (req, res) => {
       userModel
         .findById({ _id: id })
         .then((result) => {
-          postModel
-            .findByIdAndUpdate({ _id }, { title: title }, { new: true })
-            .then((result) => {
-              if (result.isDele == false) {
-                res.status(200).json(result);
-              } else {
-                res.status(404).json("Post already deleted");
-              }
-            })
-            .catch((err) => {
-              res.status(400).json(err);
-            });
+     
+          if(result){
+            postModel
+              .findOneAndUpdate(
+             
+                {post: _id , puplisher: id },
+                {title: title },
+                { new: true }
+              )
+              .then((result) => {
+                if (result ){
+                if (result.isDele == false) {
+                  res.status(200).json(result);
+                } else {
+                  res.status(404).json("Post already deleted");
+                }}
+                else {
+                  res.status(404).json("not found post");
+                }
+              })
+              .catch((err) => {
+                res.status(400).json(err);
+              });
+            }else {
+              res.status(404).json("not found user");
+            }
+  
+
         })
         .catch((err) => {
           res.status(400).json(err);

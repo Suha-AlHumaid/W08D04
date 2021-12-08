@@ -78,23 +78,27 @@ const addComment = (req, res) => {
   const id = req.suha._id;
   const { discription } = req.body;
   const { _id } = req.params; //post id
-  userModel
-    .findById(id) // find user
+  postModel
+    .findOne({_id:_id}) // find comment
     .then((result) => {
       if (result) {
         if (result.isDele == false) {
           const newComment = new commentModel({
             discription,
             post: _id,
-            puplisher: result._id,
+            puplisher: id,
           });
 
           newComment.save();
           console.log(newComment);
           res.status(201).json(newComment);
+        }else {
+          res.status(404).json("post dose not exist");
         }
+      }else {
+        res.status(404).json("post dose not exist");
       }
-      res.status(404).json("user dose not exist");
+     
     })
     .catch((err) => {
       res.status(400).json(err);
@@ -177,7 +181,7 @@ const updateComment = (req, res) => {
 
 //delete any comments or post
 const deleteAnyCommentOrPost = (req, res) => {
-  const { post_id, _id } = req.body; //user of comment and post id
+  const { post_id, _id } = req.body; //comment and post id of user
 
   //delete post
   if (post_id) {
@@ -215,7 +219,17 @@ const deleteAnyCommentOrPost = (req, res) => {
           res.status(404).json("not found comment");
         } else {
           //comment found
-          res.status(201).json(result);
+          postModel.findById(result.post).then(
+            (result)=>{
+              if(result){
+              res.status(404).json("comment deleted successfully");
+            }else {
+              res.status(404).json("not found post");
+            }
+          }).catch((err)=>{
+            res.status(400).json(err);
+          })
+        
         }
       } else {
         res.status(404).json("not found comment");
@@ -232,29 +246,24 @@ const deleteCommentOfUserPost = (req, res) => {
   userModel
     .findById(id)
     .then((result) => {
-      console.log(result);
-          //user found
-          postModel
-          .findById({_id:_id})
+      //user found
+      postModel.findById({ _id: _id }).then((result) => {
+        if (result) {
+          commentModel
+            .findByIdAndDelete(comment_id)
             .then((result) => {
-              console.log(result);
-                  commentModel
-                    .findByIdAndDelete(comment_id)
-                    .then((result) => {
-                      console.log(result);
-              
-                          //comment found
-                        
-                          res.status(201).json(result);
-                        })
-            
-              
-                    .catch((err) => {
-                      res.status(400).json(err);
-                    });
-                  }
+              //comment found
+              res.status(201).json(result);
+            })
+            .catch((err) => {
+              res.status(400).json(err);
+            });
+        } else {
+          res.status(404).json("not found");
+        }
+      });
+    })
 
-   )})
     .catch((err) => {
       res.status(400).json(err);
     });

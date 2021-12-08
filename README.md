@@ -28,6 +28,8 @@ secert_key=any secrt value
 * bcrybt
 * jwt
 
+## UML Diagram
+![URM ](https://github.com/Suha-AlHumaid/W08D03/blob/main/img/uml.jpg)
 
 ## Schemas:
  * Role schema
