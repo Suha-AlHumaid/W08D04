@@ -30,7 +30,7 @@ secert_key=any secrt value
 
 
 ## Entity Relationship Diagram
-![entity relationship diagram](https://github.com/Suha-AlHumaid/W08D03/blob/main/img/digram.jpg)
+![entity relationship diagram](https://github.com/Suha-AlHumaid/W08D04/blob/main/img/digram.jpg)
 
 ## UML Diagram
 ![URM ](https://github.com/Suha-AlHumaid/W08D03/blob/main/img/uml.jpg)
