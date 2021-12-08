@@ -28,6 +28,10 @@ secert_key=any secrt value
 * bcrybt
 * jwt
 
+
+## Entity Relationship Diagram
+![entity relationship diagram](https://github.com/Suha-AlHumaid/W08D03/blob/main/img/digram.jpg)
+
 ## UML Diagram
 ![URM ](https://github.com/Suha-AlHumaid/W08D03/blob/main/img/uml.jpg)
 
