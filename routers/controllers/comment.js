@@ -33,6 +33,36 @@ const getAllComments = (req, res) => {
     });
 };
 
+// get all comments (not deleted)
+const allComments = (req, res) => {
+  const { _id } = req.params; //post id
+
+  postModel
+    .findById(_id) //find post
+    .then((result) => {
+      if (result) {
+        if (result.isDele == false) {
+          commentModel
+            .find({}) //find all comments for post
+            .then((result) => {
+              if (result.length !== 0) {
+                res.status(201).json(result);
+              } else {
+                res.status(404).json("no comments");
+              }
+            })
+            .catch((err) => {
+              res.status(400).json(err);
+            });
+        } else {
+          res.status(404).json("no post");
+        }
+      }
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+};
 //get comment by id
 const getComment = (req, res) => {
   const { id } = req.params; //comment id
@@ -277,4 +307,5 @@ module.exports = {
   updateComment,
   deleteAnyCommentOrPost,
   deleteCommentOfUserPost,
+  allComments
 };

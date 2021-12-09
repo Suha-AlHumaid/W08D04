@@ -23,7 +23,7 @@ const register = async (req, res) => {
   newUser
     .save()
     .then((result) => {
-      res.status(200).json(result);
+      res.status(201).json(result);
     })
     .catch((err) => {
       res.status(400).json(err);
@@ -39,8 +39,9 @@ const login = (req, res) => {
       .findOne({ email: savedEmail })
       .then(async (result) => {
         if (result) {
-          if (result.isDele == true) {
-            if (result.email == savedEmail) {
+        
+          if (result.isDele == false) {
+        
               const newpass = await bcrypt.compare(password, result.password);
               if (newpass) {
                 const options = {
@@ -55,9 +56,7 @@ const login = (req, res) => {
               } else {
                 res.status(404).json("Invalaid password  or email");
               }
-            } else {
-              res.status(404).json("Invalaid password or email");
-            }
+         
           } else {
             res.status(404).json("Email  or user name does not exist");
           }

@@ -15,10 +15,12 @@ const {
   updateComment,
   deleteAnyCommentOrPost,
   deleteCommentOfUserPost,
+  allComments
 } = require("../controllers/comment");
 
 //controllers
 commentRouter.get("/comments/:_id", authentication, getAllComments);
+commentRouter.get("/allComments/:_id", authentication, allComments);
 commentRouter.get("/comment/:id", authentication, getComment);
 commentRouter.post("/comment/:_id", authentication, addComment);
 commentRouter.delete("/comment/:_id", authentication, deleteComment);
