@@ -12,7 +12,7 @@ const {
   login,
   deleteUser,
   deleteUserSoft,
-  getAllUser,
+  getAllUser,verify
 } = require("../controllers/user");
 
 //controllers
@@ -28,5 +28,5 @@ userRouter.put("/user/:id", authentication, authorization, deleteUserSoft);
 
 //only admin can get all user
 userRouter.get("/all", authentication, authorization, getAllUser);
-
+userRouter.get('/verify/:token', verify);
 module.exports = userRouter;

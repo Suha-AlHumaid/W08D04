@@ -22,7 +22,7 @@ postRouter.get("/allPosts", authentication, allPosts);
 postRouter.get("/posts", authentication, getAllPosts);
 postRouter.get("/post/:id", authentication, getPost);
 postRouter.post("/post", authentication, addPost);
-postRouter.put("/DelePost/:_id", authentication, deletePost);
+postRouter.delete("/DelePost/:_id", authentication, deletePost);
 postRouter.put("/post/:_id", authentication, updatePost);
 
 module.exports = postRouter;

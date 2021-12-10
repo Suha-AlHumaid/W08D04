@@ -49,8 +49,8 @@ const getPost = (req, res) => {
           res.status(404).json("user dose not exist");
         } else {
           postModel
-            .findOne({_id: id, puplisher: userId})
-            .populate("puplisher")
+            .findOne({_id: id})
+            .populate("puplisher like")
             .then((result) => {
               if (result){
               if (result.isDele === false) {
@@ -172,7 +172,7 @@ const deletePost = (req, res) => {
     const id = req.suha._id;
     const { _id } = req.params;
     userModel
-      .findById(id)
+      .findById({_id:id})
       .then((result) => {
         if (result) {
    
@@ -183,7 +183,7 @@ const deletePost = (req, res) => {
               )
               .then((result) => {
                 if (result) {
-                  console.log(result);
+        
                   commentModel
                     .updateMany(
                       { post: result._id, isDele: false },
@@ -238,21 +238,18 @@ const deletePost = (req, res) => {
 ////update post
 const updatePost = (req, res) => {
   try {
-    const id = req.suha._id;
-    const { _id } = req.params;
-    const { avatar, discription, title } = req.body;
+    const id = req.suha._id; //user
+    const { _id } = req.params;//post
+    const { avatar, discription, title } = req.body;//new data
 
     //avatar
     if (avatar) {
       userModel
         .findById({ _id: id })
-        .then((result) => {
-
-          
+        .then((result) => {          
           if(result){
             postModel
               .findOneAndUpdate(
-             
                 {post: _id , puplisher: id },
                 { avatar: avatar},
                 { new: true }
