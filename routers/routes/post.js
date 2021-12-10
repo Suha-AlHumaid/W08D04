@@ -18,7 +18,7 @@ const {
 } = require("../controllers/post");
 
 //controllers
-postRouter.get("/allPosts", allPosts);
+postRouter.get("/allPosts", authentication, allPosts);
 postRouter.get("/posts", authentication, getAllPosts);
 postRouter.get("/post/:id", authentication, getPost);
 postRouter.post("/post", authentication, addPost);

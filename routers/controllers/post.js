@@ -7,9 +7,9 @@ const getAllPosts = (req, res) => {
   const _id = req.suha._id;
 
   userModel
-    .findById({ _id })
+    .findById(_id)
     .then((result) => {
-      postModel.find({ puplisher: result._id }).then((result) => {
+      postModel.find({ puplisher: _id , isDele:false }).then((result) => {
         const filtered = result.filter((elem) => elem.isDele === false);
         if (filtered.length !== 0) {
           res.status(201).json(filtered);
@@ -26,7 +26,6 @@ const getAllPosts = (req, res) => {
 const allPosts = (req, res) => {
 
       postModel.find({isDele:false}).then((result) => {
-        
         if (result) {
           res.status(201).json(result);
         } else {

@@ -7,13 +7,15 @@ const getAllComments = (req, res) => {
   const { _id } = req.params; //post id
 
   postModel
-    .findById(_id) //find post
+    .findById({_id}) //find post
     .then((result) => {
+
       if (result) {
         if (result.isDele == false) {
           commentModel
-            .find({}) //find all comments for post
+            .find({post: _id}) //find all comments for post
             .then((result) => {
+              console.log(result);
               if (result.length !== 0) {
                 res.status(201).json(result);
               } else {
@@ -38,12 +40,13 @@ const allComments = (req, res) => {
   const { _id } = req.params; //post id
 
   postModel
-    .findById(_id) //find post
+    .findById({_id}) //find post
     .then((result) => {
+      console.log(result);
       if (result) {
         if (result.isDele == false) {
           commentModel
-            .find({}) //find all comments for post
+            .find({post:_id}) //find all comments for post
             .then((result) => {
               if (result.length !== 0) {
                 res.status(201).json(result);
