@@ -12,7 +12,12 @@ const {
   login,
   deleteUser,
   deleteUserSoft,
-  getAllUser,verify
+  getAllUser,
+  verify,
+  forgetPassword,
+  passwordReset,
+  resetPassword,
+  passwordUpdated
 } = require("../controllers/user");
 
 //controllers
@@ -29,4 +34,8 @@ userRouter.put("/user/:id", authentication, authorization, deleteUserSoft);
 //only admin can get all user
 userRouter.get("/all", authentication, authorization, getAllUser);
 userRouter.get('/verify/:token', verify);
+userRouter.get('/forgotpassword',forgetPassword)
+userRouter.post('/passwordreset',passwordReset)
+userRouter.get('/resetpassword/:id/:token', resetPassword)
+userRouter.post('/resetpassword',passwordUpdated)
 module.exports = userRouter;
