@@ -57,8 +57,8 @@ const register = async (req, res) => {
        }
   
     })
-    .catch((err) => {
-      res.status(400).json(err);
+    .catch((error) => {
+      res.status(400).json(error);
     });
   // Step 2 - Generate a verification token with the user's ID
 

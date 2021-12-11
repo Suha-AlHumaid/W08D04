@@ -9,13 +9,16 @@ const getAllPosts = (req, res) => {
   userModel
     .findById(_id)
     .then((result) => {
-      postModel.find({ puplisher: _id , isDele:false }).then((result) => {
-        const filtered = result.filter((elem) => elem.isDele === false);
-        if (filtered.length !== 0) {
-          res.status(201).json(filtered);
-        } else {
-          res.status(404).json("There is no posts to show");
-        }
+      postModel.find({ puplisher: _id , isDele:false }).populate("puplisher").then((result) => {
+      if(result){
+        res.status(201).json(result);
+      }
+       
+          else {
+            res.status(404).json("There is no posts to show");
+          }
+        
+      
       });
     })
     .catch((err) => {
@@ -25,7 +28,7 @@ const getAllPosts = (req, res) => {
 //get all posts (not deleted)
 const allPosts = (req, res) => {
 
-      postModel.find({isDele:false}).then((result) => {
+      postModel.find({isDele:false}).populate("puplisher").then((result) => {
         if (result) {
           res.status(201).json(result);
         } else {
