@@ -13,14 +13,11 @@ const getAllComments = (req, res) => {
       if (result) {
         if (result.isDele == false) {
           commentModel
-            .find({post: _id}) //find all comments for post
+            .find({post: _id , isDele:false}).populate("puplisher") //find all comments for post
             .then((result) => {
-              console.log(result);
-              if (result.length !== 0) {
+            
                 res.status(201).json(result);
-              } else {
-                res.status(404).json("no comments");
-              }
+          
             })
             .catch((err) => {
               res.status(400).json(err);
@@ -46,7 +43,7 @@ const allComments = (req, res) => {
       if (result) {
         if (result.isDele == false) {
           commentModel
-            .find({post:_id}) //find all comments for post
+            .find({post:_id}).populate("puplisher") //find all comments for post
             .then((result) => {
               if (result.length !== 0) {
                 res.status(201).json(result);
@@ -72,7 +69,8 @@ const getComment = (req, res) => {
   let comment = null;
   commentModel
     .findById(id)
-    .populate("post")
+    .populate("puplisher")
+    // .populate("post")
     .then((result) => {
       if (result) {
         if (result.isDele === false) {
@@ -143,31 +141,22 @@ const deleteComment = (req, res) => {
   try {
     const id = req.suha._id;
     const { _id } = req.params; //comment id
-    userModel //find user
-      .findById(id)
-      .then((result) => {
-        if (result) {
-          if (result.isDele) {
-            res.status(404).json("user dose not exist");
-          } else {
+  
             commentModel
-              .findByIdAndUpdate({ _id }, { isDele: true })
+              .findOneAndUpdate({ _id ,puplisher: id, isDele:false}, { isDele: true })
               .then((result) => {
-                if (result.isDele == false) {
+                if (result){
                   res.status(201).json("comment deleted");
-                } else {
-                  res.status(404).json("comment already deleted");
+               
+                }else{
+                  res.status(404).json("not found comment");
                 }
               })
               .catch((err) => {
                 res.status(400).json(err);
               });
-          }
-        }
-      })
-      .catch((err) => {
-        res.status(400).json(err);
-      });
+          
+  
   } catch (error) {
     res.status(400).json(error);
   }
@@ -219,22 +208,20 @@ const deleteAnyCommentOrPost = (req, res) => {
   //delete post
   if (post_id) {
     postModel
-      .findByIdAndDelete(post_id)
+      .findOneAndDelete({_id:post_id, isDele:false})
       .then((result) => {
         if (result) {
-          if (result.isDele == true) {
-            res.status(404).json("not found post");
-          } else {
+   
             //post found
             commentModel
               .deleteMany({ post: result._id })
               .then((result) => {
-                res.status(201).json(result);
+                res.status(201).json("deleted");
               })
               .catch((error) => {
                 res.status(400).json(error);
               });
-          }
+       
         } else {
           res.status(404).json("not found post");
         }
@@ -246,11 +233,8 @@ const deleteAnyCommentOrPost = (req, res) => {
 
   //delete comment
   if (_id) {
-    commentModel.findByIdAndDelete(_id).then((result) => {
-      if (result) {
-        if (result.isDele == true) {
-          res.status(404).json("not found comment");
-        } else {
+    commentModel.findOneAndDelete({_id:_id, isDele:false}).then((result) => {
+      if (result)  {
           //comment found
           postModel.findById(result.post).then(
             (result)=>{
@@ -263,7 +247,7 @@ const deleteAnyCommentOrPost = (req, res) => {
             res.status(400).json(err);
           })
         
-        }
+      
       } else {
         res.status(404).json("not found comment");
       }

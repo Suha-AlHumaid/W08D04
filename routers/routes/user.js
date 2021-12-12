@@ -26,10 +26,10 @@ userRouter.post("/register", register);
 userRouter.post("/login", login);
 
 //only admin can delete
-userRouter.delete("/user/:id", authentication, authorization, deleteUser);
+// userRouter.delete("/user/:id", authentication, authorization, deleteUser);
 
 //only admin can delete soft
-userRouter.put("/user/:id", authentication, authorization, deleteUserSoft);
+userRouter.delete("/user/:id", authentication, authorization, deleteUserSoft);
 
 //only admin can get all user
 userRouter.get("/all", authentication, authorization, getAllUser);

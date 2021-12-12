@@ -52,14 +52,13 @@ const getPost = (req, res) => {
           res.status(404).json("user dose not exist");
         } else {
           postModel
-            .findOne({_id: id})
+            .findOne({_id: id, isDele:false})
             .populate("puplisher like")
             .then((result) => {
               if (result){
-              if (result.isDele === false) {
+          
                 res.status(200).json(result);
-              }
-              res.status(404).json("There is no posts to show");
+             
             }else {
               res.status(404).json("There is no post for you");
             }

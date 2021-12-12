@@ -40,7 +40,7 @@ const register = async (req, res) => {
   newUser
     .save()
     .then((result) => {
-       if(result){
+   
         const verificationToken = newUser.generateVerificationToken();
         // Step 3 - Email the user a unique verification link
         const url = `http://localhost:5000/verify/${verificationToken}`;
@@ -52,9 +52,6 @@ const register = async (req, res) => {
         return res.status(201).send({
           message: `Sent a verification email to ${savedEmail}`,
         });
-       }else {
-        res.status(404).json("err");
-       }
   
     })
     .catch((error) => {
@@ -99,6 +96,7 @@ const login = async (req, res) => {
           if (result.verified == true) {
             console.log(result);
             const newpass = await bcrypt.compare(password, result.password);
+            console.log(newpass);
             if (newpass) {
               const options = {
                 expiresIn: "7d",
@@ -189,12 +187,14 @@ const deleteUser = (req, res) => {
 //get all user
 const getAllUser = (req, res) => {
   userModel
-    .find({})
+    .find({isDele: false})
     .then((result) => {
-      if (result.length !== 0) {
+      if (result) {
         res.status(200).json(result);
+      }else {
+        res.status(404).json("There is no user to show");
       }
-      res.status(404).json("There is no user to show");
+     
     })
     .catch((err) => {
       res.status(400).json(err);
@@ -203,25 +203,22 @@ const getAllUser = (req, res) => {
 
 //delete user and his data soft delete
 const deleteUserSoft = (req, res) => {
-  const { id } = req.params;
-
+  const { id } = req.params;//user
+console.log(id);
   userModel
-    .findByIdAndUpdate(id, { isDele: true })
+    .findOneAndUpdate({_id: id , isDele: false}, { isDele: true },{new:true})
     .then((result) => {
+      console.log(result);
       if (result) {
-        if (result.isDele == true) {
-          res.status(404).json("there is no user to delete");
-        } else {
-          res.status(404).json("there is no user to delete");
-          taskModel
-            .updateMany({ user: result._id, isDele: false }, { isDele: true })
-            .then(() => {
-              res.status(201).json(result);
+        postModel
+            .updateMany({ puplisher:id, isDele: false }, { isDele: true })
+            .then((result) => {
+              res.status(201).json("deleted");
             })
             .catch((err) => {
               res.status(400).json(err);
             });
-        }
+        
       } else {
         res.status(404).json("there is no user to delete");
       }
@@ -230,6 +227,8 @@ const deleteUserSoft = (req, res) => {
       res.status(400).json(err);
     });
 };
+
+
 const verify = async (req, res) => {
   const { token } = req.params;
 
