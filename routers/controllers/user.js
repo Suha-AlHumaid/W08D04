@@ -43,7 +43,7 @@ const register = async (req, res) => {
    
         const verificationToken = newUser.generateVerificationToken();
         // Step 3 - Email the user a unique verification link
-        const url = `http://localhost:5000/verify/${verificationToken}`;
+        const url = `http://localhost:3000/verify/${verificationToken}`;
         transporter.sendMail({
           to: savedEmail,
           subject: "Verify Account",
