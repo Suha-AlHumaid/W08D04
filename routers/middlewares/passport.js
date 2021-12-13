@@ -13,10 +13,11 @@ passport.use(
   new GoogleStrategy(
     {
         callbackURL://this was on local host if it crashed put it back
-          "https://social-media-back-mern.herokuapp.com/auth/google/callback",
+         process.env.CALL_BACK_URL ,
         clientID:
-          "426069343336-l2ih3a7s3764b4abu42qkngcgnr2l6cb.apps.googleusercontent.com",
-        clientSecret: "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",
+        process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+
         passReqToCallback: true,
       },
     // {
