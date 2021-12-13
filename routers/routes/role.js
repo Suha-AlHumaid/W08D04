@@ -5,9 +5,9 @@ const roleRouter = express.Router();
 const { createRole, getAllRoles } = require("../controllers/role");
 
 // authentication middelle wear
-const authentication = require("../auth/authentication");
+const authentication = require("../middlewares/authentication");
 // authentication middelle wear
-const authorization = require("../auth/authorization");
+const authorization = require("../middlewares/authorization");
 
 //controllers
 //only admin can create a role

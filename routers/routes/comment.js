@@ -2,9 +2,9 @@ const express = require("express");
 const commentRouter = express.Router();
 
 // authentication middelle wear
-const authentication = require("../auth/authentication");
+const authentication = require("../middlewares/authentication");
 // authentication middelle wear
-const authorization = require("../auth/authorization");
+const authorization = require("../middlewares/authorization");
 
 //destructuring
 const {

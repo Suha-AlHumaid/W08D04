@@ -1,11 +1,12 @@
 const express = require("express");
 const userRouter = express.Router();
-
+const passport = require("passport");
 // authentication middelle wear
-const authentication = require("../auth/authentication");
+const authentication = require("../middlewares/authentication");
 // authentication middelle wear
-const authorization = require("../auth/authorization");
-
+const authorization = require("../middlewares/authorization");
+const popuptools = require("popup-tools");
+require("../middlewares/passport");
 //destructuring
 const {
   register,
@@ -44,4 +45,18 @@ userRouter.post('/forgotpassword',forgetPassword)
 userRouter.post('/resetpassword/:id/:token', resetPassword)
 // userRouter.post('/resetpassword',passwordUpdated)
 
+// Google passport
+
+userRouter.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["email", "profile"] })
+);
+userRouter.get(
+  "/auth/google/callback",
+  passport.authenticate("google"),
+  (req, res) => {
+    res.end(popuptools.popupResponse(req.user));
+  }
+);
+// /passport/google
 module.exports = userRouter;

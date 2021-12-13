@@ -57,6 +57,9 @@ const register = async (req, res) => {
     .catch((error) => {
       res.status(400).json(error);
     });
+  // Step 2 - Generate a verification token with the user's ID
+
+  
 
 };
 
@@ -65,6 +68,26 @@ const login = async (req, res) => {
 
   if (email) {
     const savedEmail = email.toLowerCase();
+    //    Step 1 - Verify a user with the email exists
+    //    try{
+    //     const user = await userModel.findOne({ email: savedEmail }).exec();
+    //     if (!user) {
+    //          return res.status(404).send({
+    //                message: "User does not exists"
+    //          });
+    //     }
+    //     // Step 2 - Ensure the account has been verified
+    //     if(!user.verified){
+    //          return res.status(403).send({
+    //                message: "Verify your Account."
+    //          });
+    //     }
+    //     return res.status(200).send({
+    //          message: "User logged in"
+    //     });
+    //     } catch(err) {
+    //     return res.status(500).send(err);
+    //  }
 
     userModel
       .findOne({ email: savedEmail, isDele: false })
@@ -263,7 +286,7 @@ console.log(payload, "pay");
     console.log(url);
     transporter.sendMail({
       to: savedEmail,
-      subject: "Reset Password",
+      subject: "Reset password",
       html: `Click <a href = '${url}'>here</a> to reset passord.`,
     });
 

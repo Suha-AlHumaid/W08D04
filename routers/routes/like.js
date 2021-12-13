@@ -2,7 +2,7 @@ const express = require("express");
 const likeRouter = express.Router();
 
 // authentication middelle wear
-const authentication = require("../auth/authentication");
+const authentication = require("../middlewares/authentication");
 
 const { likeToggele } = require("../controllers/like");
 

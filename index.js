@@ -1,9 +1,24 @@
 const express = require("express");
-const app = express();
 const cors = require("cors");
 const db = require("./db");
 const bodyParser = require('body-parser');
+
+const passport = require("passport");
+const session = require("express-session");
+const authRoutes = require("./routers/routes/auth");
 require("dotenv").config();
+require("./routers/middlewares/passport");
+const app = express();
+app.use(
+  session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(cors());
 app.use(express.json());

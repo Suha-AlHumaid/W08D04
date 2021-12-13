@@ -8,13 +8,11 @@ const likeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true ,
     },
     post: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Post",
       required: true,
-      unique: true 
     },
   }
 

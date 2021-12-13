@@ -39,7 +39,8 @@ const allComments = (req, res) => {
   postModel
     .findById({_id}) //find post
     .then((result) => {
-      console.log(result);
+
+
       if (result) {
         if (result.isDele == false) {
           commentModel
@@ -75,7 +76,7 @@ const getComment = (req, res) => {
       if (result) {
         if (result.isDele === false) {
           comment = result;
-          // console.log(result.post);
+  
           postModel
             .findById(result.post)
             .then((result) => {
@@ -121,7 +122,7 @@ const addComment = (req, res) => {
           });
 
           newComment.save();
-          console.log(newComment);
+
           res.status(201).json(newComment);
         }else {
           res.status(404).json("post dose not exist");
@@ -178,7 +179,7 @@ const updateComment = (req, res) => {
             .findByIdAndUpdate({ _id }, { discription }, { new: true })
             .then((result) => {
               if (result) {
-                console.log(result);
+
                 if (result.isDele == true) {
                   res.status(404).json("not found comment");
                 } else {
