@@ -15,13 +15,17 @@ const {
   getAllUser,
   verify,
   forgetPassword,
-  passwordReset,
+  // passwordReset,
   resetPassword,
-  passwordUpdated
+  // passwordUpdated
 } = require("../controllers/user");
 
 //controllers
+
+//register an verify
 userRouter.post("/register", register);
+userRouter.get('/verify/:token', verify);
+
 
 userRouter.post("/login", login);
 
@@ -33,9 +37,11 @@ userRouter.delete("/user/:id", authentication, authorization, deleteUserSoft);
 
 //only admin can get all user
 userRouter.get("/all", authentication, authorization, getAllUser);
-userRouter.get('/verify/:token', verify);
-userRouter.get('/forgotpassword',forgetPassword)
-userRouter.post('/passwordreset',passwordReset)
-userRouter.get('/resetpassword/:id/:token', resetPassword)
-userRouter.post('/resetpassword',passwordUpdated)
+
+//reset password
+userRouter.post('/forgotpassword',forgetPassword)
+// userRouter.post('/passwordreset',passwordReset)
+userRouter.post('/resetpassword/:id/:token', resetPassword)
+// userRouter.post('/resetpassword',passwordUpdated)
+
 module.exports = userRouter;

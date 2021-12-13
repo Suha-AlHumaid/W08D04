@@ -57,9 +57,6 @@ const register = async (req, res) => {
     .catch((error) => {
       res.status(400).json(error);
     });
-  // Step 2 - Generate a verification token with the user's ID
-
-  
 
 };
 
@@ -68,26 +65,6 @@ const login = async (req, res) => {
 
   if (email) {
     const savedEmail = email.toLowerCase();
-    //    Step 1 - Verify a user with the email exists
-    //    try{
-    //     const user = await userModel.findOne({ email: savedEmail }).exec();
-    //     if (!user) {
-    //          return res.status(404).send({
-    //                message: "User does not exists"
-    //          });
-    //     }
-    //     // Step 2 - Ensure the account has been verified
-    //     if(!user.verified){
-    //          return res.status(403).send({
-    //                message: "Verify your Account."
-    //          });
-    //     }
-    //     return res.status(200).send({
-    //          message: "User logged in"
-    //     });
-    //     } catch(err) {
-    //     return res.status(500).send(err);
-    //  }
 
     userModel
       .findOne({ email: savedEmail, isDele: false })
@@ -119,8 +96,8 @@ const login = async (req, res) => {
           res.status(404).json("Email  or user name does not exist");
         }
       })
-      .catch((err) => {
-        res.status(400).json(err);
+      .catch((error) => {
+        res.status(400).json(error);
       });
   }
 
@@ -263,95 +240,72 @@ const verify = async (req, res) => {
 };
 
 const forgetPassword = (req, res) => {
-  res.send(
-    '<form action="/passwordreset" method="POST">' +
-      '<input type="email" name="email" value="" placeholder="Enter your email address..." />' +
-      '<input type="submit" value="Reset Password" />' +
-      "</form>"
-  );
-};
-
-const passwordReset = (req, res) => {
-  if (req.body.email !== undefined) {
-    const { email } = req.body;
-    // TODO: Using email, find user from your database.
-    userModel.findOne({ email }).then((result) => {
+  const {email} = req.body;
+  const savedEmail = email.toLowerCase()
+  if(savedEmail){
+  userModel.findOne({email:savedEmail}).then(result=>{
+    if(result){
       console.log(result);
-
-      const payload = {
-        id: result._id, // User ID from database
-        email: result.email,
-      };
+    const payload = {
+      id: result._id, // User ID from database
+      email: savedEmail,
+    };
 console.log(payload, "pay");
-    // TODO: Make this a one-time-use token by using the user's
-    // current password hash from the database, and combine it
-    // with the user's created date to make a very unique secret key!
-    // For example:
-    const secret = result.password + `-` + result.avatar;
-    // var secret = "fe1a1915a379f3be5394b64d14794932-1506868106675";
+  // TODO: Make this a one-time-use token by using the user's
+  // current password hash from the database, and combine it
+  const secret = result.password + `-` + result.avatar;
 
-   const token = jwtSimple.encode(payload, secret);
-    // TODO: Send email containing link to reset password.
-    // In our case, will just return a link to click.
-    res.send(
-      `<a href="http://localhost:5000/resetpassword/${payload.id}/${token}">Reset password</a>`
-    );
+ const token = jwtSimple.encode(payload, secret);
+
+  // TODO: Send email containing link to reset password.
+  // In our case, will just return a link to click.
+    const url = `http://localhost:3000/passwordreset/${payload.id}/${token}`;
+    console.log(url);
+    transporter.sendMail({
+      to: savedEmail,
+      subject: "Reset Password",
+      html: `Click <a href = '${url}'>here</a> to reset passord.`,
     });
-  } else {
-    res.send("Email address is missing.");
+
+    res.status(200).json("sent email")
   }
+  else{
+    res.status(404).json("not found email")
+  }
+  
+  })
+  .catch((error) => {
+    res.status(500).send(error);
+  });
+}
 };
+
 
 
 const resetPassword=(req, res)=> {
-  // TODO: Fetch user from database using
-  // req.params.id
+
   const {id} = req.params //user id
   const {token}= req.params
   userModel.findById(id).then(result=>{
-    console.log(result);
-  // TODO: Decrypt one-time-use token using the user's
-  // current password hash from the database and combine it
-  // with the user's created date to make a very unique secret key!
-  // For example,
-
   const secret = result.password + `-` + result.avatar;
   const payload = jwtSimple.decode(token, secret);
-  console.log(payload);
-  // TODO: Gracefully handle decoding issues.
-  // Create form to reset password.
-  res.send(`<form action="/resetpassword" method="POST">`+
-      `<input type="hidden" name="id" value="` + payload.id + `" />` +
-      `<input type="hidden" name="token" value="` + req.params.token + `" />` +
-      `<input type="password" name="password" value="" placeholder="Enter your new password..." />` +
-      `<input type="submit" value="Reset Password" />` +
-  `</form>`);
+
   })
-};
-const passwordUpdated=(req, res)=>{
-  // TODO: Fetch user from database using
-  const {id}=req.body
+
   userModel.findById(id).then(async result=>{
-  // TODO: Decrypt one-time-use token using the user's
-  // current password hash from the database and combining it
-  // with the user's created date to make a very unique secret key!
-  // For example,
-  // var secret = user.password + ‘-' + user.created.getTime();
-  const secret = result.password + `-` + result.avatar;
-  const payload = jwtSimple.decode(req.body.token, secret);
 
 
-  // TODO: Gracefully handle decoding issues.
-  // TODO: Hash password from
+
+
   const {password}=req.body
   const SALT = Number(process.env.SALT);
   const hashedPass = await bcrypt.hash(password, SALT);
   if(hashedPass){
     userModel
     .findByIdAndUpdate(id, { password: hashedPass }).then(result=>{
-      res.send('Your password has been successfully changed.');
-    }).catch(err=>{
-      res.status(500).json(err)
+      res.status(200).json('Your password has been successfully changed.');
+    }).catch(error=>{
+      res.status(500).json(error)
     })
   }
   
@@ -367,7 +321,7 @@ module.exports = {
   getAllUser,
   verify,
   forgetPassword,
-  passwordReset,
+  // passwordReset,
   resetPassword,
-  passwordUpdated
+  // passwordUpdated
 };
