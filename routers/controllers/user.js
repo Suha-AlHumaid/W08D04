@@ -339,11 +339,11 @@ const resetPassword =(req, res)=> {
 
 };
 
-const client = new OAuth2Client("426069343336-cgcpjsch5km1dielkaskjv6iqjrqfu47.apps.googleusercontent.com")
+const client = new OAuth2Client("426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com")
 const googleLogin=(req, res)=> {
 const {tokenId}= req.body;
 
-client.verifyIdToken({idToken:tokenId, audience: "426069343336-cgcpjsch5km1dielkaskjv6iqjrqfu47.apps.googleusercontent.com"}).then(result=>{
+client.verifyIdToken({idToken:tokenId, audience: "426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com"}).then(result=>{
   // console.log("result from google",result.payload);
  const{ email_verified, name, email ,profileObj}= result.payload
  if(email_verified){
