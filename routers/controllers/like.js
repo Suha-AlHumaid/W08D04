@@ -1,5 +1,18 @@
 const likeModel = require("../../db/models/like");
+const postModel = require("../../db/models/post");
 
+const getLikes = (req, res) => {
+  const { id } = req.params;// id post
+  likeModel.find({post: id}).populate("puplisher").then(result=>{
+// console.log("likes",result);
+res.status(200).json(result)
+
+  }).catch((error)=>{
+    console.log(error);
+  })
+
+
+}
 const likeToggele = (req, res) => {
   const { id } = req.params;// post
   const { isLike } = req.body;
@@ -73,4 +86,4 @@ const likeToggele = (req, res) => {
   }
 };
 
-module.exports = { likeToggele };
+module.exports = { likeToggele , getLikes };
