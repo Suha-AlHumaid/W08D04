@@ -54,7 +54,7 @@ const getPost = (req, res) => {
         } else {
           postModel
             .findOne({ _id: id, isDele: false })
-            .populate("puplisher like")
+            .populate("puplisher")
             .then((result) => {
               if (result) {
                 res.status(200).json(result);
