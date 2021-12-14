@@ -2,19 +2,19 @@ const likeModel = require("../../db/models/like");
 const postModel = require("../../db/models/post");
 
 const getLikes = (req, res) => {
-  const { id } = req.params;// id post
-  likeModel.find({post: id}).populate("puplisher").then(result=>{
-// console.log("likes",result);
-res.status(200).json(result)
-
-  }).catch((error)=>{
-    console.log(error);
-  })
-
-
-}
+  const { id } = req.params; // id post
+  likeModel
+    .find({ post: id, isLike: true })
+    .populate("puplisher")
+    .then((result) => {
+      res.status(200).json(result);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 const likeToggele = (req, res) => {
-  const { id } = req.params;// post
+  const { id } = req.params; // post
   const { isLike } = req.body;
   const { _id } = req.suha; //user
 
@@ -23,23 +23,24 @@ const likeToggele = (req, res) => {
     likeModel
       .findOne({ post: id, puplisher: _id })
       .then((result) => {
-
-  
         if (result) {
           likeModel
             .findOneAndUpdate(
-              { post: id, puplisher: _id, isLike:false},
-              { isLike: true},
+              { post: id, puplisher: _id, isLike: false },
+              { isLike: true },
               { new: true }
             )
             .then((result) => {
               if (result) {
                 res.status(200).json(result);
               } else {
-                res.status(200).json({isLike:true, post: id, puplisher: _id});
+                res
+                  .status(200)
+                  .json({ isLike: true, post: id, puplisher: _id });
               }
             })
             .catch((err) => {
+              console.log(err);
               res.status(400).json(err);
             });
         } else {
@@ -51,7 +52,7 @@ const likeToggele = (req, res) => {
           newLike
             .save()
             .then((result) => {
-              res.status(200).json( newLike);
+              res.status(200).json(newLike);
             })
             .catch((error) => {
               res.status(400).json(error);
@@ -60,30 +61,28 @@ const likeToggele = (req, res) => {
         }
       })
       .catch((err) => {
+        console.log("true", err);
         res.status(400).json(err);
       });
   } else {
     likeModel
       .findOneAndUpdate(
-        { post: id, puplisher: _id, isLike: true  },
-        { isLike: false},
+        { post: id, puplisher: _id, isLike: true },
+        { isLike: false },
         { new: true }
       )
       .then((result) => {
-    
         if (result) {
           res.status(200).json(result);
         } else {
-          res.status(200).json({post: id, puplisher: _id, isLike:false });
+          res.status(200).json({ post: id, puplisher: _id, isLike: false });
         }
-      
       })
       .catch((error) => {
-        console.log(error);
+        console.log("false", error);
         res.status(400).json(error);
-      
       });
   }
 };
 
-module.exports = { likeToggele , getLikes };
+module.exports = { likeToggele, getLikes };

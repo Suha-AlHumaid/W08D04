@@ -2,8 +2,8 @@ const userModel = require("../../db/models/user");
 const postModel = require("../../db/models/post");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const jwtSimple = require('jwt-simple');
-const {OAuth2Client} = require('google-auth-library');
+const jwtSimple = require("jwt-simple");
+const { OAuth2Client } = require("google-auth-library");
 
 require("dotenv").config();
 
@@ -42,27 +42,22 @@ const register = async (req, res) => {
   newUser
     .save()
     .then((result) => {
-   
-        const verificationToken = newUser.generateVerificationToken();
-        // Step 3 - Email the user a unique verification link
-        const url = `http://localhost:3000/verify/${verificationToken}`;
-        transporter.sendMail({
-          to: savedEmail,
-          subject: "Verify Account",
-          html: `Click <a href = '${url}'>here</a> to confirm your email.`,
-        });
-        return res.status(201).send({
-          message: `Sent a verification email to ${savedEmail}`,
-        });
-  
+      const verificationToken = newUser.generateVerificationToken();
+      // Step 3 - Email the user a unique verification link
+      const url = `http://localhost:3000/verify/${verificationToken}`;
+      transporter.sendMail({
+        to: savedEmail,
+        subject: "Verify Account",
+        html: `Click <a href = '${url}'>here</a> to confirm your email.`,
+      });
+      return res.status(201).send({
+        message: `Sent a verification email to ${savedEmail}`,
+      });
     })
     .catch((error) => {
       res.status(400).json(error);
     });
   // Step 2 - Generate a verification token with the user's ID
-
-  
-
 };
 
 const login = async (req, res) => {
@@ -70,26 +65,6 @@ const login = async (req, res) => {
 
   if (email) {
     const savedEmail = email.toLowerCase();
-    //    Step 1 - Verify a user with the email exists
-    //    try{
-    //     const user = await userModel.findOne({ email: savedEmail }).exec();
-    //     if (!user) {
-    //          return res.status(404).send({
-    //                message: "User does not exists"
-    //          });
-    //     }
-    //     // Step 2 - Ensure the account has been verified
-    //     if(!user.verified){
-    //          return res.status(403).send({
-    //                message: "Verify your Account."
-    //          });
-    //     }
-    //     return res.status(200).send({
-    //          message: "User logged in"
-    //     });
-    //     } catch(err) {
-    //     return res.status(500).send(err);
-    //  }
 
     userModel
       .findOne({ email: savedEmail, isDele: false })
@@ -189,14 +164,13 @@ const deleteUser = (req, res) => {
 //get all user
 const getAllUser = (req, res) => {
   userModel
-    .find({isDele: false})
+    .find({ isDele: false })
     .then((result) => {
       if (result) {
         res.status(200).json(result);
-      }else {
+      } else {
         res.status(404).json("There is no user to show");
       }
-     
     })
     .catch((err) => {
       res.status(400).json(err);
@@ -205,22 +179,25 @@ const getAllUser = (req, res) => {
 
 //delete user and his data soft delete
 const deleteUserSoft = (req, res) => {
-  const { id } = req.params;//user
-console.log(id);
+  const { id } = req.params; //user
+  console.log(id);
   userModel
-    .findOneAndUpdate({_id: id , isDele: false}, { isDele: true },{new:true})
+    .findOneAndUpdate(
+      { _id: id, isDele: false },
+      { isDele: true },
+      { new: true }
+    )
     .then((result) => {
       console.log(result);
       if (result) {
         postModel
-            .updateMany({ puplisher:id, isDele: false }, { isDele: true })
-            .then((result) => {
-              res.status(201).json("deleted");
-            })
-            .catch((err) => {
-              res.status(400).json(err);
-            });
-        
+          .updateMany({ puplisher: id, isDele: false }, { isDele: true })
+          .then((result) => {
+            res.status(201).json("deleted");
+          })
+          .catch((err) => {
+            res.status(400).json(err);
+          });
       } else {
         res.status(404).json("there is no user to delete");
       }
@@ -229,7 +206,6 @@ console.log(id);
       res.status(400).json(err);
     });
 };
-
 
 const verify = async (req, res) => {
   const { token } = req.params;
@@ -265,133 +241,142 @@ const verify = async (req, res) => {
 };
 
 const forgetPassword = (req, res) => {
-  const {email} = req.body;
-  const savedEmail = email.toLowerCase()
-  if(savedEmail){
-  userModel.findOne({email:savedEmail}).then(result=>{
-    if(result){
-      console.log(result);
-    const payload = {
-      id: result._id, // User ID from database
-      email: savedEmail,
-    };
-console.log(payload, "pay");
-  // TODO: Make this a one-time-use token by using the user's
-  // current password hash from the database, and combine it
-  const secret = result.password + `-` + result.avatar;
-
- const token = jwtSimple.encode(payload, secret);
-
-  // TODO: Send email containing link to reset password.
-  // In our case, will just return a link to click.
-    const url = `http://localhost:3000/passwordreset/${payload.id}/${token}`;
-    console.log(url);
-    transporter.sendMail({
-      to: savedEmail,
-      subject: "Reset password",
-      html: `Click <a href = '${url}'>here</a> to reset passord.`,
-    });
-
-    res.status(200).json("sent email")
-  }
-  else{
-    res.status(404).json("not found email")
-  }
-  
-  })
-  .catch((error) => {
-    res.status(500).send(error);
-  });
-}
-};
-
-
-
-const resetPassword =(req, res)=> {
-
-  const {id} = req.params //user id
-  const {token}= req.params
-  userModel.findById(id).then(result=>{
-  const secret = result.password + `-` + result.avatar;
-  const payload = jwtSimple.decode(token, secret);
-
-  })
-
-  userModel.findById(id).then(async result=>{
-
-
-
-
-  const {password}=req.body
-  const SALT = Number(process.env.SALT);
-  const hashedPass = await bcrypt.hash(password, SALT);
-  if(hashedPass){
+  const { email } = req.body;
+  const savedEmail = email.toLowerCase();
+  if (savedEmail) {
     userModel
-    .findByIdAndUpdate(id, { password: hashedPass }).then(result=>{
-      res.status(200).json('Your password has been successfully changed.');
-    }).catch(error=>{
-      res.status(500).json(error)
-    })
+      .findOne({ email: savedEmail })
+      .then((result) => {
+        if (result) {
+          console.log(result);
+          const payload = {
+            id: result._id, // User ID from database
+            email: savedEmail,
+          };
+
+          console.log(payload, "pay");
+          // TODO: Make this a one-time-use token by using the user's
+          // current password hash from the database, and combine it
+          const secret = result.password + `-` + result.avatar;
+
+          const token = jwtSimple.encode(payload, secret);
+
+          // TODO: Send email containing link to reset password.
+          // In our case, will just return a link to click.
+          const url = `http://localhost:3000/passwordreset/${payload.id}/${token}`;
+          console.log(url);
+          transporter.sendMail({
+            to: savedEmail,
+            subject: "Reset password",
+            html: `Click <a href = '${url}'>here</a> to reset passord.`,
+          });
+
+          res.status(200).json("sent email");
+        } else {
+          res.status(404).json("not found email");
+        }
+      })
+      .catch((error) => {
+        res.status(500).send(error);
+      });
   }
-  
-
-  })
-
 };
 
-const client = new OAuth2Client("426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com")
-const googleLogin=(req, res)=> {
-const {tokenId}= req.body;
+const resetPassword = (req, res) => {
+  const { id } = req.params; //user id
+  const { token } = req.params;
+  userModel.findById(id).then((result) => {
+    const secret = result.password + `-` + result.avatar;
+    const payload = jwtSimple.decode(token, secret);
+  });
 
-client.verifyIdToken({idToken:tokenId, audience: "426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com"}).then(result=>{
-  // console.log("result from google",result.payload);
- const{ email_verified, name, email ,profileObj}= result.payload
- if(email_verified){
-   userModel.findOne({email}).exec((err,user)=>{
-if(err){
-  return res.status(400).json(err)
-}else {
-  if(user){
-    //login
-    const options = {
-      expiresIn: "7d",
-    };
-    const token = jwt.sign(
-      { role: user.role, _id: user._id },
-      process.env.secert_key,
-      options
-    );
-    const result = {_id: user._idrsz, userName: name , email ,role:"61a744e5313b1e7127be4634"}
-    res.status(200).json({ result, token });
-  }else{
-//create new user
-let password= email + process.env.secert_key
-const newUser = new userModel({userName:name,password,email,role:"61a744e5313b1e7127be4634"})
-newUser.save((err,data)=>{
-  if(err){
-    return res.status(400).json(err)
-  } 
-  
-  const token = jwt.sign(
-    { role: data.role, _id: data._id },
-    process.env.secert_key,
-    {
-      expiresIn: "7d",
+  userModel.findById(id).then(async (result) => {
+    const { password } = req.body;
+    const SALT = Number(process.env.SALT);
+    const hashedPass = await bcrypt.hash(password, SALT);
+    if (hashedPass) {
+      userModel
+        .findByIdAndUpdate(id, { password: hashedPass })
+        .then((result) => {
+          res.status(200).json("Your password has been successfully changed.");
+        })
+        .catch((error) => {
+          res.status(500).json(error);
+        });
     }
-  )
-  const {_id, name , email ,role } = newUser
-  res.status(200).json({ result: data, token });
-})
+  });
+};
 
-}
+const client = new OAuth2Client(
+  "426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com"
+);
+const googleLogin = (req, res) => {
+  const { tokenId } = req.body;
 
-}
-   })
- }
-}).catch(error=>{
-  console.log(error);
-})
-}
+  client
+    .verifyIdToken({
+      idToken: tokenId,
+      audience:
+        "426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com",
+    })
+    .then((result) => {
+      // console.log("result from google",result.payload);
+      const { email_verified, name, email, profileObj } = result.payload;
+      if (email_verified) {
+        userModel.findOne({ email }).exec((err, user) => {
+          if (err) {
+            return res.status(400).json(err);
+          } else {
+            if (user) {
+              //login
+              const options = {
+                expiresIn: "7d",
+              };
+              const token = jwt.sign(
+                { role: user.role, _id: user._id },
+                process.env.secert_key,
+                options
+              );
+              const result = {
+                _id: user._idrsz,
+                userName: name,
+                email,
+                role: "61a744e5313b1e7127be4634",
+              };
+              res.status(200).json({ result, token });
+            } else {
+              //create new user
+              let password = email + process.env.secert_key;
+              const newUser = new userModel({
+                userName: name,
+                password,
+                email,
+                role: "61a744e5313b1e7127be4634",
+              });
+              newUser.save((err, data) => {
+                if (err) {
+                  return res.status(400).json(err);
+                }
+
+                const token = jwt.sign(
+                  { role: data.role, _id: data._id },
+                  process.env.secert_key,
+                  {
+                    expiresIn: "7d",
+                  }
+                );
+                const { _id, name, email, role } = newUser;
+                res.status(200).json({ result: data, token });
+              });
+            }
+          }
+        });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 
 module.exports = {
   register,
@@ -404,5 +389,5 @@ module.exports = {
   // passwordReset,
   resetPassword,
   // passwordUpdated
-  googleLogin
+  googleLogin,
 };

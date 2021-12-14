@@ -7,17 +7,15 @@ const getAllComments = (req, res) => {
   const { _id } = req.params; //post id
 
   postModel
-    .findById({_id}) //find post
+    .findById({ _id }) //find post
     .then((result) => {
-
       if (result) {
         if (result.isDele == false) {
           commentModel
-            .find({post: _id , isDele:false}).populate("puplisher") //find all comments for post
+            .find({ post: _id, isDele: false })
+            .populate("puplisher") //find all comments for post
             .then((result) => {
-            
-                res.status(201).json(result);
-          
+              res.status(201).json(result);
             })
             .catch((err) => {
               res.status(400).json(err);
@@ -37,14 +35,13 @@ const allComments = (req, res) => {
   const { _id } = req.params; //post id
 
   postModel
-    .findById({_id}) //find post
+    .findById({ _id }) //find post
     .then((result) => {
-
-
       if (result) {
         if (result.isDele == false) {
           commentModel
-            .find({post:_id}).populate("puplisher") //find all comments for post
+            .find({ post: _id })
+            .populate("puplisher") //find all comments for post
             .then((result) => {
               if (result.length !== 0) {
                 res.status(201).json(result);
@@ -76,7 +73,7 @@ const getComment = (req, res) => {
       if (result) {
         if (result.isDele === false) {
           comment = result;
-  
+
           postModel
             .findById(result.post)
             .then((result) => {
@@ -111,7 +108,7 @@ const addComment = (req, res) => {
   const { discription } = req.body;
   const { _id } = req.params; //post id
   postModel
-    .findOne({_id:_id}) // find comment
+    .findOne({ _id: _id }) // find comment
     .then((result) => {
       if (result) {
         if (result.isDele == false) {
@@ -124,13 +121,12 @@ const addComment = (req, res) => {
           newComment.save();
 
           res.status(201).json(newComment);
-        }else {
+        } else {
           res.status(404).json("post dose not exist");
         }
-      }else {
+      } else {
         res.status(404).json("post dose not exist");
       }
-     
     })
     .catch((err) => {
       res.status(400).json(err);
@@ -142,22 +138,19 @@ const deleteComment = (req, res) => {
   try {
     const id = req.suha._id;
     const { _id } = req.params; //comment id
-  
-            commentModel
-              .findOneAndUpdate({ _id ,puplisher: id, isDele:false}, { isDele: true })
-              .then((result) => {
-                if (result){
-                  res.status(201).json("comment deleted");
-               
-                }else{
-                  res.status(404).json("not found comment");
-                }
-              })
-              .catch((err) => {
-                res.status(400).json(err);
-              });
-          
-  
+
+    commentModel
+      .findOneAndUpdate({ _id, puplisher: id, isDele: false }, { isDele: true })
+      .then((result) => {
+        if (result) {
+          res.status(201).json("comment deleted");
+        } else {
+          res.status(404).json("not found comment");
+        }
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
   } catch (error) {
     res.status(400).json(error);
   }
@@ -179,7 +172,6 @@ const updateComment = (req, res) => {
             .findByIdAndUpdate({ _id }, { discription }, { new: true })
             .then((result) => {
               if (result) {
-
                 if (result.isDele == true) {
                   res.status(404).json("not found comment");
                 } else {
@@ -209,20 +201,18 @@ const deleteAnyCommentOrPost = (req, res) => {
   //delete post
   if (post_id) {
     postModel
-      .findOneAndDelete({_id:post_id, isDele:false})
+      .findOneAndDelete({ _id: post_id, isDele: false })
       .then((result) => {
         if (result) {
-   
-            //post found
-            commentModel
-              .deleteMany({ post: result._id })
-              .then((result) => {
-                res.status(201).json("deleted");
-              })
-              .catch((error) => {
-                res.status(400).json(error);
-              });
-       
+          //post found
+          commentModel
+            .deleteMany({ post: result._id })
+            .then((result) => {
+              res.status(201).json("deleted");
+            })
+            .catch((error) => {
+              res.status(400).json(error);
+            });
         } else {
           res.status(404).json("not found post");
         }
@@ -234,25 +224,27 @@ const deleteAnyCommentOrPost = (req, res) => {
 
   //delete comment
   if (_id) {
-    commentModel.findOneAndDelete({_id:_id, isDele:false}).then((result) => {
-      if (result)  {
+    commentModel
+      .findOneAndDelete({ _id: _id, isDele: false })
+      .then((result) => {
+        if (result) {
           //comment found
-          postModel.findById(result.post).then(
-            (result)=>{
-              if(result){
-              res.status(404).json("comment deleted successfully");
-            }else {
-              res.status(404).json("not found post");
-            }
-          }).catch((err)=>{
-            res.status(400).json(err);
-          })
-        
-      
-      } else {
-        res.status(404).json("not found comment");
-      }
-    });
+          postModel
+            .findById(result.post)
+            .then((result) => {
+              if (result) {
+                res.status(404).json("comment deleted successfully");
+              } else {
+                res.status(404).json("not found post");
+              }
+            })
+            .catch((err) => {
+              res.status(400).json(err);
+            });
+        } else {
+          res.status(404).json("not found comment");
+        }
+      });
   }
 };
 
@@ -295,5 +287,5 @@ module.exports = {
   updateComment,
   deleteAnyCommentOrPost,
   deleteCommentOfUserPost,
-  allComments
+  allComments,
 };
