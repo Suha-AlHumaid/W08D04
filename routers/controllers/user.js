@@ -338,7 +338,7 @@ const googleLogin = (req, res) => {
                 options
               );
               const result = {
-                _id: user._idrsz,
+                _id: user._id,
                 userName: name,
                 email,
                 role: "61a744e5313b1e7127be4634",
