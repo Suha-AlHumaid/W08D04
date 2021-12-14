@@ -3,6 +3,8 @@ const postModel = require("../../db/models/post");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const jwtSimple = require('jwt-simple');
+const {OAuth2Client} = require('google-auth-library');
+
 require("dotenv").config();
 
 const nodemailer = require("nodemailer");
@@ -305,7 +307,7 @@ console.log(payload, "pay");
 
 
 
-const resetPassword=(req, res)=> {
+const resetPassword =(req, res)=> {
 
   const {id} = req.params //user id
   const {token}= req.params
@@ -336,6 +338,61 @@ const resetPassword=(req, res)=> {
   })
 
 };
+
+const client = new OAuth2Client("426069343336-3odhdvec6q2o8qnlck1pakcrncrpas01.apps.googleusercontent.com")
+const googleLogin=(req, res)=> {
+const {tokenId}= req.body;
+
+client.verifyIdToken({idToken:tokenId, audience: "426069343336-3odhdvec6q2o8qnlck1pakcrncrpas01.apps.googleusercontent.com"}).then(result=>{
+  // console.log("result from google",result.payload);
+ const{ email_verified, name, email ,profileObj}= result.payload
+ if(email_verified){
+   userModel.findOne({email}).exec((err,user)=>{
+if(err){
+  return res.status(400).json(err)
+}else {
+  if(user){
+    //login
+    const options = {
+      expiresIn: "7d",
+    };
+    const token = jwt.sign(
+      { role: user.role, _id: user._id },
+      process.env.secert_key,
+      options
+    );
+    const result = {_id: user._idrsz, userName: name , email ,role:"61a744e5313b1e7127be4634"}
+    res.status(200).json({ result, token });
+  }else{
+//create new user
+let password= email + process.env.secert_key
+const newUser = new userModel({userName:name,password,email,role:"61a744e5313b1e7127be4634"})
+newUser.save((err,data)=>{
+  if(err){
+    return res.status(400).json(err)
+  } 
+  
+  const token = jwt.sign(
+    { role: data.role, _id: data._id },
+    process.env.secert_key,
+    {
+      expiresIn: "7d",
+    }
+  )
+  const {_id, name , email ,role } = newUser
+  res.status(200).json({ result: data, token });
+})
+
+}
+
+}
+   })
+ }
+}).catch(error=>{
+  console.log(error);
+})
+}
+
 module.exports = {
   register,
   login,
@@ -347,4 +404,5 @@ module.exports = {
   // passwordReset,
   resetPassword,
   // passwordUpdated
+  googleLogin
 };

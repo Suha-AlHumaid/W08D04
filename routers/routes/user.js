@@ -7,6 +7,9 @@ const authentication = require("../middlewares/authentication");
 const authorization = require("../middlewares/authorization");
 const popuptools = require("popup-tools");
 require("../middlewares/passport");
+
+
+
 //destructuring
 const {
   register,
@@ -19,6 +22,7 @@ const {
   // passwordReset,
   resetPassword,
   // passwordUpdated
+  googleLogin
 } = require("../controllers/user");
 
 //controllers
@@ -58,5 +62,13 @@ userRouter.get(
     res.end(popuptools.popupResponse(req.user));
   }
 );
+
 // /passport/google
+
+
+
+
+userRouter.post(
+  "/googleLoggin",googleLogin
+);
 module.exports = userRouter;
