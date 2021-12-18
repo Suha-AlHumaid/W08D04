@@ -47,7 +47,7 @@ const register = async (req, res) => {
 
       const verificationToken = newUser.generateVerificationToken();
       // Step 3 - Email the user a unique verification link
-      const url = `${proccess.env.BASE_URL}/verify/${verificationToken}`;
+      const url = `https://social-media-front-mern.herokuapp.com/verify/${verificationToken}`;
       transporter.sendMail({
         to: savedEmail,
         subject: "Verify Account",
@@ -337,7 +337,7 @@ const forgetPassword = (req, res) => {
 
           // TODO: Send email containing link to reset password.
           // In our case, will just return a link to click.
-          const url = `${proccess.env.BASE_URL}/passwordreset/${payload.id}/${token}`;
+          const url = `https://social-media-front-mern.herokuapp.com/passwordreset/${payload.id}/${token}`;
           console.log(url);
           transporter.sendMail({
             to: savedEmail,
