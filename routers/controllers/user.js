@@ -47,7 +47,7 @@ const register = async (req, res) => {
 
       const verificationToken = newUser.generateVerificationToken();
       // Step 3 - Email the user a unique verification link
-      const url = `http://localhost:3000/verify/${verificationToken}`;
+      const url = `${proccess.env.BASE_URL}/verify/${verificationToken}`;
       transporter.sendMail({
         to: savedEmail,
         subject: "Verify Account",
@@ -337,7 +337,7 @@ const forgetPassword = (req, res) => {
 
           // TODO: Send email containing link to reset password.
           // In our case, will just return a link to click.
-          const url = `http://localhost:3000/passwordreset/${payload.id}/${token}`;
+          const url = `${proccess.env.BASE_URL}/passwordreset/${payload.id}/${token}`;
           console.log(url);
           transporter.sendMail({
             to: savedEmail,
