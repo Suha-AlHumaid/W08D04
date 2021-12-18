@@ -1,28 +1,27 @@
 const express = require("express");
 const cors = require("cors");
-
 const db = require("./db");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 const app = express();
+require("dotenv").config();
 app.use(cors());
 
-const passport = require("passport");
-const session = require("express-session");
-const authRoutes = require("./routers/routes/auth");
-require("dotenv").config();
-require("./routers/middlewares/passport");
+// const passport = require("passport");
+// const session = require("express-session");
+// const authRoutes = require("./routers/routes/auth");
 
-app.use(
-  session({
-    secret: "secret",
-    resave: false,
-    saveUninitialized: true,
-  })
-);
+// require("./routers/middlewares/passport");
 
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(
+//   session({
+//     secret: "secret",
+//     resave: false,
+//     saveUninitialized: true,
+//   })
+// );
 
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -35,7 +34,6 @@ app.use(roleRouter);
 const userRouter = require("./routers/routes/user");
 app.use(userRouter);
 
-
 // Post Router
 const postRouter = require("./routers/routes/post");
 app.use(postRouter);
@@ -44,7 +42,6 @@ app.use(postRouter);
 
 const commentRouter = require("./routers/routes/comment");
 app.use(commentRouter);
-
 
 // Like Router
 

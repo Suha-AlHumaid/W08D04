@@ -7,6 +7,7 @@ const { OAuth2Client } = require("google-auth-library");
 
 require("dotenv").config();
 
+//nodemailer
 const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
   service: process.env.MAILER_SERVICE_PROVIDER,
@@ -15,6 +16,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASSWORD,
   },
 });
+
+//register controller
 const register = async (req, res) => {
   const { email, userName, avatar, password, role } = req.body;
 
@@ -41,7 +44,7 @@ const register = async (req, res) => {
 
   newUser
     .save()
-    .then((result) => {
+
       const verificationToken = newUser.generateVerificationToken();
       // Step 3 - Email the user a unique verification link
       const url = `http://localhost:3000/verify/${verificationToken}`;
@@ -53,13 +56,11 @@ const register = async (req, res) => {
       return res.status(201).send({
         message: `Sent a verification email to ${savedEmail}`,
       });
-    })
-    .catch((error) => {
-      res.status(400).json(error);
-    });
+
   // Step 2 - Generate a verification token with the user's ID
 };
 
+// login
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -138,29 +139,102 @@ const login = async (req, res) => {
   // }
 };
 
-//delete user and his data
-const deleteUser = (req, res) => {
-  const { id } = req.params;
-  userModel
-    .findByIdAndDelete(id)
+//log in with google
+const client = new OAuth2Client(
+  "426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com"
+);
+const googleLogin = (req, res) => {
+  const { tokenId } = req.body;
+
+  client
+    .verifyIdToken({
+      idToken: tokenId,
+      audience:
+        "426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com",
+    })
     .then((result) => {
-      if (result) {
-        postModel
-          .deleteMany({ user: result._id })
-          .then((result) => {
-            res.status(201).json(result);
-          })
-          .catch((error) => {
-            res.status(400).json(error);
-          });
-      } else {
-        res.status(404).json("there is no user to delete");
+      // console.log("result from google",result.payload);
+      const { email_verified, name, email, profileObj } = result.payload;
+      if (email_verified) {
+        userModel.findOne({ email }).exec((err, user) => {
+          if (err) {
+            return res.status(400).json(err);
+          } else {
+            if (user) {
+              //login
+              const options = {
+                expiresIn: "7d",
+              };
+              const token = jwt.sign(
+                { role: user.role, _id: user._id },
+                process.env.secert_key,
+                options
+              );
+              const result = {
+                _id: user._id,
+                userName: name,
+                email,
+                role: "61a744e5313b1e7127be4634",
+              };
+              res.status(200).json({ result, token });
+            } else {
+              //create new user
+              let password = email + process.env.secert_key;
+              const newUser = new userModel({
+                userName: name,
+                password,
+                email,
+                role: "61a744e5313b1e7127be4634",
+              });
+              newUser.save((err, data) => {
+                if (err) {
+                  return res.status(400).json(err);
+                }
+
+                const token = jwt.sign(
+                  { role: data.role, _id: data._id },
+                  process.env.secert_key,
+                  {
+                    expiresIn: "7d",
+                  }
+                );
+                const { _id, name, email, role } = newUser;
+                res.status(200).json({ result: data, token });
+              });
+            }
+          }
+        });
       }
     })
-    .catch((err) => {
-      res.status(400).json(err);
+    .catch((error) => {
+      console.log(error);
     });
 };
+
+//delete user and his data
+// const deleteUser = (req, res) => {
+//   const { id } = req.params;
+//   userModel
+//     .findByIdAndDelete(id)
+//     .then((result) => {
+//       if (result) {
+//         postModel
+//           .deleteMany({ user: result._id })
+//           .then((result) => {
+//             res.status(201).json(result);
+//           })
+//           .catch((error) => {
+//             res.status(400).json(error);
+//           });
+//       } else {
+//         res.status(404).json("there is no user to delete");
+//       }
+//     })
+//     .catch((err) => {
+//       res.status(400).json(err);
+//     });
+// };
+
 //get all user
 const getAllUser = (req, res) => {
   userModel
@@ -298,7 +372,16 @@ const resetPassword = (req, res) => {
       userModel
         .findByIdAndUpdate(id, { password: hashedPass })
         .then((result) => {
-          res.status(200).json("Your password has been successfully changed.");
+          const options = {
+            expiresIn: "7d",
+          };
+          const token = jwt.sign(
+            { role: result.role, _id: result._id },
+            process.env.secert_key,
+            options
+          );
+          res.status(200).json({ result, token  , message:"Your password has been successfully changed." });
+     
         })
         .catch((error) => {
           res.status(500).json(error);
@@ -307,87 +390,14 @@ const resetPassword = (req, res) => {
   });
 };
 
-const client = new OAuth2Client(
-  "426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com"
-);
-const googleLogin = (req, res) => {
-  const { tokenId } = req.body;
-
-  client
-    .verifyIdToken({
-      idToken: tokenId,
-      audience:
-        "426069343336-4qrce5u8on7li4kht6rtprfj9sfcikkk.apps.googleusercontent.com",
-    })
-    .then((result) => {
-      // console.log("result from google",result.payload);
-      const { email_verified, name, email, profileObj } = result.payload;
-      if (email_verified) {
-        userModel.findOne({ email }).exec((err, user) => {
-          if (err) {
-            return res.status(400).json(err);
-          } else {
-            if (user) {
-              //login
-              const options = {
-                expiresIn: "7d",
-              };
-              const token = jwt.sign(
-                { role: user.role, _id: user._id },
-                process.env.secert_key,
-                options
-              );
-              const result = {
-                _id: user._id,
-                userName: name,
-                email,
-                role: "61a744e5313b1e7127be4634",
-              };
-              res.status(200).json({ result, token });
-            } else {
-              //create new user
-              let password = email + process.env.secert_key;
-              const newUser = new userModel({
-                userName: name,
-                password,
-                email,
-                role: "61a744e5313b1e7127be4634",
-              });
-              newUser.save((err, data) => {
-                if (err) {
-                  return res.status(400).json(err);
-                }
-
-                const token = jwt.sign(
-                  { role: data.role, _id: data._id },
-                  process.env.secert_key,
-                  {
-                    expiresIn: "7d",
-                  }
-                );
-                const { _id, name, email, role } = newUser;
-                res.status(200).json({ result: data, token });
-              });
-            }
-          }
-        });
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-};
-
 module.exports = {
   register,
   login,
-  deleteUser,
+  googleLogin,
+  // deleteUser,
   deleteUserSoft,
   getAllUser,
   verify,
   forgetPassword,
-  // passwordReset,
   resetPassword,
-  // passwordUpdated
-  googleLogin,
 };

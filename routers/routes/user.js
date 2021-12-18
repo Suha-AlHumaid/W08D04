@@ -8,31 +8,28 @@ const authorization = require("../middlewares/authorization");
 const popuptools = require("popup-tools");
 require("../middlewares/passport");
 
-
-
 //destructuring
 const {
   register,
   login,
-  deleteUser,
+  // deleteUser,
   deleteUserSoft,
   getAllUser,
   verify,
   forgetPassword,
-  // passwordReset,
   resetPassword,
-  // passwordUpdated
-  googleLogin
+  googleLogin,
 } = require("../controllers/user");
 
 //controllers
 
-//register an verify
+//register and verify
 userRouter.post("/register", register);
-userRouter.get('/verify/:token', verify);
+userRouter.get("/verify/:token", verify);
 
-
+//login route and login with google
 userRouter.post("/login", login);
+userRouter.post("/googleLoggin", googleLogin);
 
 //only admin can delete
 // userRouter.delete("/user/:id", authentication, authorization, deleteUser);
@@ -44,31 +41,23 @@ userRouter.delete("/user/:id", authentication, authorization, deleteUserSoft);
 userRouter.get("/all", authentication, authorization, getAllUser);
 
 //reset password
-userRouter.post('/forgotpassword',forgetPassword)
-// userRouter.post('/passwordreset',passwordReset)
-userRouter.post('/resetpassword/:id/:token', resetPassword)
-// userRouter.post('/resetpassword',passwordUpdated)
+userRouter.post("/forgotpassword", forgetPassword);
+userRouter.post("/resetpassword/:id/:token", resetPassword);
 
 // Google passport
 
-userRouter.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["email", "profile"] })
-);
-userRouter.get(
-  "/auth/google/callback",
-  passport.authenticate("google"),
-  (req, res) => {
-    res.end(popuptools.popupResponse(req.user));
-  }
-);
+// userRouter.get(
+//   "/auth/google",
+//   passport.authenticate("google", { scope: ["email", "profile"] })
+// );
+// userRouter.get(
+//   "/auth/google/callback",
+//   passport.authenticate("google"),
+//   (req, res) => {
+//     res.end(popuptools.popupResponse(req.user));
+//   }
+// );
 
 // /passport/google
 
-
-
-
-userRouter.post(
-  "/googleLoggin",googleLogin
-);
 module.exports = userRouter;
